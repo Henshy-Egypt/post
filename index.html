@@ -45,34 +45,20 @@
     }
   </style>
   <script>
-    // جلب البيانات من الـ URL query params
-    const params = new URLSearchParams(window.location.search);
+    // جلب postId بدل productId
+    const postId = new URLSearchParams(window.location.search).get("id");
+    const deepLink = `henshy://app/posts/${postId}`; // تغيير المسار لـ posts
 
-    // تحويل القيم لأنواعها الأصلية
-    const postId = parseInt(params.get("postId") || "0");
-    const postText = params.get("postText") || "";
-    const postOwnerName = params.get("postOwnerName") || "";
-    const postOwnerUid = params.get("postOwnerUid") || "";
-    const postImage = params.get("postImage") || "";
-    const postVideo = params.get("postVideo") || "no video";
-    const postType = params.get("postType") || "user";
-    const commentsQuantity = parseInt(params.get("commentsQuantity") || "0");
-    const userCanPost = params.get("userCanPost") === "true";
-
-    // بناء deep link للتطبيق
-    const deepLink = `henshy://app/posts/${postId}?postText=${encodeURIComponent(postText)}&postOwnerName=${encodeURIComponent(postOwnerName)}&postOwnerUid=${encodeURIComponent(postOwnerUid)}&postImage=${encodeURIComponent(postImage)}&postVideo=${encodeURIComponent(postVideo)}&postType=${encodeURIComponent(postType)}&commentsQuantity=${commentsQuantity}&userCanPost=${userCanPost}`;
-
-    // كشف نوع الجهاز
     const isAndroid = /android/i.test(navigator.userAgent);
     const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
 
     // روابط fallback
     const fallbackUrl = isAndroid
       ? "https://play.google.com/store/apps/details?id=com.henshy.app"
-      : "https://apps.apple.com/app/id1234567890";
+      : "https://apps.apple.com/app/id1234567890"; // غيّر الـ App Store ID هنا
 
     function openApp() {
-      window.location = deepLink; // فتح التطبيق
+      window.location = deepLink; // محاولة فتح التطبيق
       setTimeout(() => {
         window.location = fallbackUrl; // إذا التطبيق مش موجود
       }, 1500);
