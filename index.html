@@ -59,33 +59,48 @@
     }
   </style>
 
-  <script>
-    // جلب postId بدل productId
-    const postId = new URLSearchParams(window.location.search).get("id");
+ <script>
+  const postId = new URLSearchParams(window.location.search).get("id");
+  const deepLink = postId ? `henshy://app/posts/${postId}` : "henshy://app";
 
-    const deepLink = `henshy://app/posts/${postId}`;
+  const ua = navigator.userAgent;
 
-    // تغيير المسار لـ posts
-    const isAndroid = /android/i.test(navigator.userAgent);
-    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isIOS =
+    /iphone|ipad|ipod/i.test(ua) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 
-    // روابط fallback
-    const fallbackUrl = isAndroid
-      ? "https://play.google.com/store/apps/details?id=com.henshy.app"
-      : "https://apps.apple.com/app/id1234567890"; // غيّر الـ App Store ID هنا
+  const isAndroid =
+    /android/i.test(ua) ||
+    (!isIOS && /Linux/i.test(ua) && navigator.maxTouchPoints > 0);
 
-    function openApp() {
-      window.location = deepLink; // محاولة فتح التطبيق
+  const fallbackUrl = isAndroid
+    ? "https://play.google.com/store/apps/details?id=com.henshy.app"
+    : isIOS
+      ? "https://apps.apple.com/app/id1234567890" // غيّر الـ ID
+      : "https://henshy-egypt.github.io"; // صفحة بديلة للكمبيوتر
 
-      setTimeout(() => {
-        window.location = fallbackUrl; // إذا التطبيق مش موجود
-      }, 1500);
+  let timer;
+
+  function openApp() {
+    window.location = deepLink;
+    timer = setTimeout(() => {
+      window.location = fallbackUrl;
+    }, 1500);
+  }
+
+  // لو التطبيق اتفتح والصفحة اتخفت، الغي التحويل للمتجر
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) clearTimeout(timer);
+  });
+
+  window.addEventListener("load", () => {
+    if (isAndroid || isIOS) {
+      setTimeout(openApp, 500);
+    } else {
+      window.location = fallbackUrl;
     }
-
-    window.addEventListener("load", () => {
-      setTimeout(openApp, 500); // محاولة تلقائية بعد نصف ثانية
-    });
-  </script>
+  });
+</script>
 </head>
 
 <body>
